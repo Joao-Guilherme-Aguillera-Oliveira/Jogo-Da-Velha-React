@@ -15,11 +15,19 @@ function App() {
   const [winner, setWinner] = useState(null);
 
   const handleCellClick = (index) => {
-    if(winner) return null;
+    if (winner || board[index] !== "") return; // Retorna se já há um vencedor ou a célula está ocupada
 
-    if(board[index] !== "") return null; //posição ocupada
-
-    setBoard(board.map((item, itemIndex) => itemIndex === index ? currentPlayer : item)); // === comparação
+    const newBoard = [...board];
+    newBoard[index] = currentPlayer;
+    setBoard(newBoard);
+  
+    // Verifique a vitória após a jogada
+    checkWinner();
+  
+    // Verifique empate após a jogada
+    if (!winner && newBoard.every(item => item !== "")) {
+      setWinner("E");
+    }
     
     setCurrentPlayer(currentPlayer === "🧓" ? "👵" : "🧓")
   }
@@ -40,18 +48,28 @@ function App() {
       //diagonal
       [board[0], board[4], board[8]],
       [board[2], board[4], board[6]],
+      
+
     ];
 
-    possibleWayToWin.forEach(cells => { //
-      if (cells.every(cell => cell === "👵")) setWinner("👵"); //every verifica todos os elementos
+    possibleWayToWin.forEach(cells => {
+
+      if (cells.every(cell => cell === "👵")) setWinner("👵");//every verifica todos os elementos
       if (cells.every(cell => cell === "🧓")) setWinner("🧓");
+      //if (board.every(item => !winner == null && item !== "")) setWinner("E");
+      //console.log(winner)
     });
 
     checkDraw();
   }
 
   const checkDraw = () => {
-    if (board.every(item => item !== "")) setWinner("E"); //função de flecha
+
+    if (board.every(item => item !== "")) {
+      if (winner === null) {
+        setWinner("E");
+      }
+    }
   }
 
   useEffect(checkWinner, [board]);
